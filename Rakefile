@@ -5,6 +5,8 @@ require 'fileutils'
 require 'yaml'
 require 'byebug'
 require 'csv'
+require 'set'
+require 'uri'
 
 OOB_URI = 'urn:ietf:wg:oauth:2.0:oob'.freeze
 APPLICATION_NAME = 'Google Sheets API Ruby Quickstart'.freeze
@@ -66,17 +68,7 @@ task 'csv' do
 end
 
 
-# Palestras
-{'SEGUNDA1930'=>'Ciência para a Redução das Desigualdades por meio da Educação Cooperativa'}.each do |horario,titulo|
 
-  desc "Gera certificado da palestra realizada em #{horario}"
-  task horario do
-    sh "inkscape_merge -f modelos/certificado_ouvinte_de_palestra.svg -d modelos/certificado_ouvinte_de_palestra.csv -o certificados-gerados/certificado_ouvinte_de_palestra/#{horario}_%d.pdf"
-  end
-
-
-
-end
 
 def gera_certificado(nome, modelo, titulo, data, chave)
   return if modelo == 'ApresentacaoOral'
@@ -97,6 +89,16 @@ def gera_certificado(nome, modelo, titulo, data, chave)
 
 end
 
+# Registra presença baseado no horário
+# se já registrou naquele horário, não
+# pode registrar em outro.
+def registra_presenca(nome,chave,presenca)
+  # assert presenca[nome] é um Set
+  # o substring [0,9] mantém único os eventos
+  # que ocorreram simultaneos
+  # como estamos usando um set, conta apenas um.
+  presenca[nome] << chave[0,9]
+end
 
 desc "Gera os certificados dos ouvintes a partir do google docs"
 task :ouvintes do
@@ -116,7 +118,7 @@ task :ouvintes do
     puts "Gerando certificados do aluno: #{row[0]}"
 
     nome = row[0]
-    presenca[nome] = 0
+    presenca[nome] = Set[]
 
     atividades.each do |atividade|
       chave = atividade[0]
@@ -129,15 +131,25 @@ task :ouvintes do
 
 
       if presente
-        gera_certificado(nome, modelo, titulo, data, chave)
-        presenca[nome] = presenca[nome] + 1 # Calcula presença
+        # gera_certificado(nome, modelo, titulo, data, chave)
         registra_presenca(nome,chave,presenca)
       end
 
     end
 
-    registra_justificativa(nome)
-    #puts presenca
+  end
+  open('tmp/certificados.md', 'w') do |f|
+    f << "# Certificados digitais da SECITEC 2018 - IFPB Santa Rita\n\n"
+    f << "Clique no seu nome para baixar seus certificados. \n\n -  [Solicitar correção de certificado](https://goo.gl/forms/zG4fxGAuoiKGdmLD2)\n- [Justificar ausência](https://goo.gl/forms/hFkSZgS5rsYthJ5J2).\n\n"
+    presenca.delete('Nome')
+    presenca.each do |pessoa|
+      nome = pessoa[0]
+      participacao = pessoa[1].size*100/10
+      url = URI.escape("https://github.com/ifpb-sr/certificados-secitec-2018/tree/master/docs/pdf/"+nome)
+      f << "## [#{nome}](#{url})\n\n"
+      f << "Participação: #{participacao}%\n\n"
+      f << "Ausências: (em processamento)\n\n"
+    end
   end
 end
 
