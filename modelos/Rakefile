@@ -1,0 +1,20 @@
+desc "Gera todos os certificados"
+task :certificados
+
+
+#['ouvinte', 'professor de oficina', 'participante de oficina', 'palestrante', 'ouvinte de palestra', 'monitor', 'organizador'].each do |tipo|
+['festim','professor de oficina', 'palestrante'].each do |tipo|
+
+  tipo_name = tipo.gsub(' ', '_')
+  file tipo_name+'.csv'
+  file tipo_name+'.svg'
+  desc "Gera os certificado de #{tipo}"
+  task tipo_name => [tipo_name+'.csv', tipo_name+'.svg'] do |t|
+    name = t.name.gsub(' ','_')
+    sh "inkscape_merge -f certificado_#{name}.svg -d certificado_#{name}.csv -o certificados-gerados/#{name}/#{name}_%d.pdf"
+  end
+
+  task :certificados => tipo_name
+end
+
+task 'default' => :certificados
