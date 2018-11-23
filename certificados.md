@@ -5,7 +5,8 @@ Clique no seu nome para baixar seus certificados.
  -  [Solicitar correção de certificado](https://goo.gl/forms/zG4fxGAuoiKGdmLD2)
 - [Justificar ausência](https://goo.gl/forms/hFkSZgS5rsYthJ5J2).
 
-## [ADNA FERNANDA ADELINO SANTOS](https://github.com/ifpb-sr/certificados-secitec-2018/tree/master/docs/pdf/ADNA%20FERNANDA%20ADELINO%20SANTOS)
+
+ As participações dos monitores não estão registradas.## [ADNA FERNANDA ADELINO SANTOS](https://github.com/ifpb-sr/certificados-secitec-2018/tree/master/docs/pdf/ADNA%20FERNANDA%20ADELINO%20SANTOS)
 
 Participação: 0%
 
